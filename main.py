@@ -1,21 +1,18 @@
 import os
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth  # type: ignore
 from groq import Groq  # type: ignore
-import threading
 import datetime
 import pytz
 import socket
 from playsound import playsound  # type: ignore
-import time
 import tempfile
 from gtts import gTTS  # type: ignore
 import speech_recognition as sr  # type: ignore
 import subprocess
 
 
+# TODO: modularize
 
-
+# VARIABLES
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 r = sr.Recognizer()
 
@@ -61,9 +58,22 @@ applications = {
     "Slack": "C:\\Users\\%USERNAME%\\AppData\\Local\\slack\\slack.exe"
 }
 
+# context list
+context = [] 
 
 
+def get_context() -> (str | None):
+    output = ""
+    if len(context) < 1:
+        return None
+    for message in context:
+        if message:
+            output += (message + "\n")
+        else:
+            break 
+    return output if output != "" else None
 
+        
 def get_relevant_info():
     tz = pytz.timezone("Africa/Tunis")
     now = datetime.datetime.now(tz)
@@ -115,6 +125,7 @@ def prompt(user_instruction: str) -> str:
                     6. All other instructions: respond accurately, concisely, and optimize outcomes.
 
                     Relevant info: {get_relevant_info()}
+                    Context: {get_context() if len(context) > 0 else "None, ignore this for now."}
                     User instruction: {user_instruction}
                     """
             }
@@ -130,9 +141,9 @@ while True:
         userinput = txt
         print(f"User: {userinput}")
         answer = prompt(userinput)
-
+        context.append(f"User: {userinput}")
+        context.append(f"J.A.R.V.I.S: {answer}")
         if "OPEN" in answer: 
-
             application_name = answer.replace('OPEN: ', '')
             if applications.get(application_name):
                 answer = f"Opening {answer.replace('OPEN: ', '')}..."
@@ -144,10 +155,8 @@ while True:
                 print(f"J.A.R.V.I.S: {answer}")
                 speak(answer)
         else:
-            
             print(f"J.A.R.V.I.S:  {answer}")
             speak(answer)
-
         if answer == "Very well sir, I will stand by.":
             break
 
