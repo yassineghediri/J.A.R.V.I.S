@@ -1,21 +1,27 @@
 import os
 from groq import Groq  # type: ignore
 import datetime
-import pytz
+import pytz #type: ignore
+
+
 import socket
 from playsound import playsound  # type: ignore
 import tempfile
 from gtts import gTTS  # type: ignore
 import speech_recognition as sr  # type: ignore
 import subprocess
+import requests #type: ignore 
 
+
+
+# http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric
 
 # TODO: modularize
 
 # VARIABLES
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 r = sr.Recognizer()
-
+api_key = os.environ.get("WEATHER_SECRET")
 
 # applications dictionary
 applications = {
@@ -62,6 +68,35 @@ applications = {
 context = [] 
 
 
+
+def fetch_website(uri: str) -> str:
+    try:
+        response = requests.get(uri)
+        response.raise_for_status()
+        html = response.text 
+
+        return html
+
+    except Exception as e:
+        return f"Something has went wrong, notify the user of likely missing internet connection. API CALL FAILED. Exception: {e}"
+
+def get_weather(city: str) -> str:
+    try:
+        URI = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
+        response = requests.get(URI)
+        response.raise_for_status()
+        weather_data = response.json()
+
+        if weather_data["cod"] == 200:
+            main_weather = weather_data["weather"][0]["main"]
+            description = weather_data["weather"][0]["description"]
+            temperature = weather_data["main"]["temp"]
+            return f"The weather in {city} is {main_weather}. Description: {description}. The temperature is {temperature}."
+        else: 
+            return "Something has went wrong, notify the user of likely missing internet connection. API CALL FAILED."
+
+    except Exception as e: 
+        return f"Something has went wrong, notify the user of likely missing internet connection. API CALL FAILED. Exception: {e}"
 def get_context() -> (str | None):
     output = ""
     if len(context) < 1:
@@ -119,11 +154,15 @@ def prompt(user_instruction: str) -> str:
                     RULES:
                     1. If the user asks to open a program, respond ONLY as: OPEN: <program name>. No extra words. Auto-correct near-misses using the app list: {app_list_str}. Do not ask for confirmation. If the request is absurd or fictional, pass it exactly as given.
                     2. If the user hints at leaving, stopping, or saying goodbye, respond ONLY: Very well sir, I will stand by.
+
                     3. Always address the user as 'Sir' unless instructed otherwise.
                     4. Keep humor dry, understated, and subtle.
                     5. Provide structured, actionable responses.
                     6. All other instructions: respond accurately, concisely, and optimize outcomes.
-
+                    7. If the user asks to write to a file, respond ONLY as: WRITE <filename> <requested_content>. No extra words. Autocorrect spelling and grammar mistakes. Do not ask for confirmation. Follow the exact structure provided to you. No mistakes.
+                    9. If the user asks for a weather forecast, your ONLY response is: WEATHER <cityname>. If the user has provided you with a specific city, use that, if not, use the city the machine you're connected to is situated in. Do not ask for confirmation. Autocorrect spelling. Follow the exact structure provided to you, no mistakes, no extra words.
+                    10. If the User Instruction starts with "SYSTEM INFO: ", then consider it added information, likely weather info after an api call has been made after the user has requested the weather. Use it for your response. This can be something else, simply make sure to answer what the system info prompt has asked you to answer.
+                    11. If the user asks for news, your ONLY response is: NEWS. Do not ask for confirmation. Autocorrect spelling. Follow the exact structure provided to you, no mistakes, no extra words. This will trigger system info for you to use which will fetch from hacker news. (Rule 10.)
                     Relevant info: {get_relevant_info()}
                     Context: {get_context() if len(context) > 0 else "None, ignore this for now."}
                     User instruction: {user_instruction}
@@ -154,6 +193,28 @@ while True:
                 answer = f"{application_name} is not in the list of apps!"
                 print(f"J.A.R.V.I.S: {answer}")
                 speak(answer)
+        if "WRITE" in answer:
+            raw_instruction = answer.replace('WRITE', '')
+            file_name = raw_instruction[:raw_instruction.find(" ")]
+            contents = raw_instruction[raw_instruction.find("")+1:]
+            with open(file_name, "w") as f:
+                f.write(contents)
+            answer = f"Very well, sir. The requested content has been written to {file_name}."
+            print("J.A.R.V.I.S: " + answer)
+            speak(answer)
+        
+        if "WEATHER" in answer:
+            city_name = answer.replace("WEATHER", '')
+            weather_data = get_weather(city_name)
+            answer = prompt("SYSTEM INFO: " + weather_data) 
+            print(f"J.A.R.V.I.S: " + answer)
+            speak(answer)
+
+        if "NEWS" == answer:
+            answer = prompt("SYSTEM INFO: What follow is the HTML of the current Hacker News front page, fetch important news and tell the user what news are available today. \n\n" + fetch_website("https://news.ycombinator.com/"))
+            print("J.A.R.V.I.S: " + answer)
+            speak(answer)
+        
         else:
             print(f"J.A.R.V.I.S:  {answer}")
             speak(answer)
