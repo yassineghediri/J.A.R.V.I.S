@@ -2,8 +2,8 @@ import os
 from groq import Groq  # type: ignore
 import datetime
 import pytz #type: ignore
-
-
+import sys 
+import time
 import socket
 from playsound import playsound  # type: ignore
 import tempfile
@@ -11,9 +11,22 @@ from gtts import gTTS  # type: ignore
 import speech_recognition as sr  # type: ignore
 import subprocess
 import requests #type: ignore 
+import threading
 
 
+os.makedirs("recordings", exist_ok=True)
 
+def speak_and_print(text: str):
+    # start speech in background
+    t1 = threading.Thread(target=speak, args=(text,))
+    t1.start()
+
+    # print at the same time
+    print("J.A.R.V.I.S: ", end="", flush=True)
+    print_slow(text)
+
+    # optional: wait until speech finishes
+    t1.join()
 # http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric
 
 # TODO: modularize
@@ -108,6 +121,13 @@ def get_context() -> (str | None):
             break 
     return output if output != "" else None
 
+def print_slow(text: str, delay: float = 0.03):
+    for char in text:
+        print(char, end="", flush=True)
+        time.sleep(delay)
+    print()  # move to next line after finishing
+
+
         
 def get_relevant_info():
     tz = pytz.timezone("Africa/Tunis")
@@ -130,6 +150,18 @@ def record() -> str:
             print(e)
 
 
+def record_until_silence(phrase_limit = None) -> str:
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source, duration=0.2)
+        print("Listening... Speak now.")
+        audio = r.listen(source, phrase_time_limit=phrase_limit)
+    try:
+        return r.recognize_google(audio)
+    except Exception as e:
+        print(e)
+        return ""
+
+
 def speak(text: str):
     chunks = [text[i:i + 500] for i in range(0, len(text), 500)]
     for chunk in chunks:
@@ -149,12 +181,12 @@ def prompt(user_instruction: str) -> str:
                 "role": "user",
                 "content": f"""
                     You are Jarvis (Just A Rather Very Intelligent System), an advanced AI designed for precision, intelligence, and subtle wit. 
-                    Follow these rules strictly:
 
+
+                    Follow these rules strictly:
                     RULES:
                     1. If the user asks to open a program, respond ONLY as: OPEN: <program name>. No extra words. Auto-correct near-misses using the app list: {app_list_str}. Do not ask for confirmation. If the request is absurd or fictional, pass it exactly as given.
                     2. If the user hints at leaving, stopping, or saying goodbye, respond ONLY: Very well sir, I will stand by.
-
                     3. Always address the user as 'Sir' unless instructed otherwise.
                     4. Keep humor dry, understated, and subtle.
                     5. Provide structured, actionable responses.
@@ -163,7 +195,7 @@ def prompt(user_instruction: str) -> str:
                     9. If the user asks for a weather forecast, your ONLY response is: WEATHER <cityname>. If the user has provided you with a specific city, use that, if not, use the city the machine you're connected to is situated in. Do not ask for confirmation. Autocorrect spelling. Follow the exact structure provided to you, no mistakes, no extra words.
                     10. If the User Instruction starts with "SYSTEM INFO: ", then consider it added information, likely weather info after an api call has been made after the user has requested the weather. Use it for your response. This can be something else, simply make sure to answer what the system info prompt has asked you to answer.
                     11. If the user asks for news, your ONLY response is: NEWS. Do not ask for confirmation. Autocorrect spelling. Follow the exact structure provided to you, no mistakes, no extra words. This will trigger system info for you to use which will fetch from hacker news. (Rule 10.)
-                    Relevant info: {get_relevant_info()}
+                    12. If the user asks for recording an audio log, your ONLY response is: RECORD. Do not ask for confirmation. Autocorrect spelling. Follow the exact structure provided to you, no mistakes, no extra words.                    Relevant info: {get_relevant_info()}
                     Context: {get_context() if len(context) > 0 else "None, ignore this for now."}
                     User instruction: {user_instruction}
                     """
@@ -182,42 +214,43 @@ while True:
         answer = prompt(userinput)
         context.append(f"User: {userinput}")
         context.append(f"J.A.R.V.I.S: {answer}")
-        if "OPEN" in answer: 
+        if answer.startswith("OPEN"): 
             application_name = answer.replace('OPEN: ', '')
             if applications.get(application_name):
                 answer = f"Opening {answer.replace('OPEN: ', '')}..."
-                print(f"J.A.R.V.I.S: {answer}")
-                speak(answer) 
+                speak_and_print(answer) 
                 subprocess.Popen(applications[application_name])
             else:
                 answer = f"{application_name} is not in the list of apps!"
-                print(f"J.A.R.V.I.S: {answer}")
-                speak(answer)
-        if "WRITE" in answer:
-            raw_instruction = answer.replace('WRITE', '')
-            file_name = raw_instruction[:raw_instruction.find(" ")]
-            contents = raw_instruction[raw_instruction.find("")+1:]
+                speak_and_print(answer)
+        elif answer.startswith("WRITE"):
+            raw_instruction = answer.replace('WRITE ', '')
+            file_name = raw_instruction[:raw_instruction.find(" ")+1]
+            contents = raw_instruction[raw_instruction.find(" ")+1:]
             with open(file_name, "w") as f:
                 f.write(contents)
             answer = f"Very well, sir. The requested content has been written to {file_name}."
-            print("J.A.R.V.I.S: " + answer)
-            speak(answer)
-        
-        if "WEATHER" in answer:
+            speak_and_print(answer) 
+        elif answer.startswith("WEATHER"):
             city_name = answer.replace("WEATHER", '')
             weather_data = get_weather(city_name)
             answer = prompt("SYSTEM INFO: " + weather_data) 
-            print(f"J.A.R.V.I.S: " + answer)
-            speak(answer)
-
-        if "NEWS" == answer:
+            speak_and_print(answer)
+        elif "NEWS" == answer:
             answer = prompt("SYSTEM INFO: What follow is the HTML of the current Hacker News front page, fetch important news and tell the user what news are available today. \n\n" + fetch_website("https://news.ycombinator.com/"))
-            print("J.A.R.V.I.S: " + answer)
-            speak(answer)
+            speak_and_print(answer) 
+        elif "RECORD" == answer:
+            tz = pytz.timezone("Africa/Tunis")
+            now = datetime.datetime.now().isoformat()  # "2025-09-27T21:21:10.533066"
+            safe_now = now.replace(":", "-").replace("+", "_")
+            monologue = record_until_silence()
+            with open(f"./recordings/{safe_now}.txt", 'w') as f:
+                f.write(monologue)
+
+            speak_and_print("Recording saved.")
         
         else:
-            print(f"J.A.R.V.I.S:  {answer}")
-            speak(answer)
+           speak_and_print(answer) 
         if answer == "Very well sir, I will stand by.":
             break
 
