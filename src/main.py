@@ -1,5 +1,4 @@
 from utils.speech import record
-from utils.jarvis import prompt
 from src.utils.executor import handle
 
 
