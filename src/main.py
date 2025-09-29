@@ -1,8 +1,5 @@
 from utils.speech import record
-from utils.executor import handle
-from utils.jarvis import initialize
-from utils.speech import speak_and_print
-from memory import context
+from src.utils.executor import handle
 
 def main():
     global context
@@ -20,5 +17,6 @@ def main():
         
             
             
+              
 if __name__ == "__main__":
     main()

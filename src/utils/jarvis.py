@@ -5,10 +5,8 @@ from memory import context, load_from_memory, BASE_DIR, MEMORY_FILE
 from options import client, applications
 from utils.misc import get_relevant_info
 
-
 def initialize():
     os.makedirs("data", exist_ok=True)
-
 
 # This function allows the model to get context from the context array.
 def get_context() -> str | None:
