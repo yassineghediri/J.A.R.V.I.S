@@ -1,5 +1,5 @@
 from utils.speech import listen_from_mic
-from src.utils.executor import handle
+from utils.executor import handle
 from utils.speech import listen_from_mic, speak_and_print
 from utils.executor import handle
 from utils.jarvis import initialize
