@@ -7,4 +7,3 @@ def print_slow(text: str, delay: float = 0.03):
         print(char, end="", flush=True)
         time.sleep(delay)
     print() 
-    

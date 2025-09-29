@@ -2,18 +2,12 @@
 import subprocess
 import sys 
 
+from shared.commands import Command
 from jarvis import prompt 
 from memory import context 
 from options import applications
 from speech import speak_and_print
 from web import get_weather, fetch_website
-
-from enum import Enum
-
-class Command(Enum):
-  OPEN_APP = 'OPEN'
-  WEATHER_INFO = 'WEATHER'
-  NEWS_INFO = 'NEWS'
 
 def command_input(answer: str, command: Command) -> bool:
     return answer.startswith(command.value)
