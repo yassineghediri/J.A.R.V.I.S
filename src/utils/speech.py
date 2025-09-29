@@ -1,8 +1,9 @@
 # Functions for speech recognition.
-import speech_recognition as sr 
+
+import speech_recognition as sr
 import threading
-from voice import speak
-from text import print_slow
+from utils.voice import speak
+from utils.text import print_slow
 
 r = sr.Recognizer()
 

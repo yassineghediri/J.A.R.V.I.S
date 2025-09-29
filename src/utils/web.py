@@ -1,6 +1,7 @@
 # Internet / Web related functions.
+
 from options import weather_key
-import requests 
+import requests
 
 
 

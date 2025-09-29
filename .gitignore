@@ -4,3 +4,6 @@
 prompt.mp3
 *.mp3
 prompt.mp3
+data/memory.txt
+/data
+/src/__pycache__
