@@ -1,0 +1,59 @@
+# Functions related to sending and scheduling notifications.
+
+import requests
+import threading 
+from options import pushbullet_secret
+from time import sleep
+
+def send_notification_instant(title: str, body: str) -> bool:
+    ACCESS_TOKEN = pushbullet_secret
+    url = "https://api.pushbullet.com/v2/pushes"
+
+    headers = {
+        "Access-Token": ACCESS_TOKEN,
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "type": "note",
+        "title": f"{title}",
+        "body": f"{body}"
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+
+    if response.status_code == 200:
+        return True 
+    else:
+        return False
+
+
+# Delay in seconds.
+def send_notification_delay(title: str, body: str, delay: int) -> bool:
+    ACCESS_TOKEN = pushbullet_secret
+    url = "https://api.pushbullet.com/v2/pushes"
+
+    headers = {
+        "Access-Token": ACCESS_TOKEN,
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "type": "note",
+        "title": f"{title}",
+        "body": f"{body}"
+    }
+
+    sleep(delay)
+    response = requests.post(url, json=data, headers=headers)
+
+    if response.status_code == 200:
+        return True 
+    else:
+        return False
+    
+    
+def schedule_notification(title: str, body: str, delay: int):
+    args = (title, body, delay)
+    noti_thread = threading.Thread(target=send_notification_delay, args=args)
+    noti_thread.start()

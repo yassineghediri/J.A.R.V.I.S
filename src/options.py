@@ -41,3 +41,4 @@ applications = {
 # API Keys
 weather_key = os.environ.get("WEATHER_SECRET")
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+pushbullet_secret = os.environ.get("PUSHBULLET_SECRET")
