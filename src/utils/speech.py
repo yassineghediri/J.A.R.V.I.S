@@ -17,7 +17,6 @@ def record() -> str:
         except Exception as e:
             print(e)
 
-
 def record_until_silence(phrase_limit = None) -> str:
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=0.2) # type: ignore

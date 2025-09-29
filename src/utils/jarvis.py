@@ -4,10 +4,8 @@ from memory import context
 from options import client, weather_key, applications
 from misc import get_relevant_info
 
-
 def initialize():
     os.makedirs("recordings", exist_ok=True)
-
 
 # This function allows the model to get context from the context array.
 def get_context() -> (str | None):
@@ -20,10 +18,6 @@ def get_context() -> (str | None):
         else:
             break 
     return output if output != "" else None
-
-
-
-
 
 def prompt(user_instruction: str) -> (str ):
     app_list_str = ", ".join(applications.keys())

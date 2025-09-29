@@ -1,8 +1,6 @@
 import os
 from groq import Groq  
 
-
-
 # Applications List
 
 applications = {

@@ -8,8 +8,6 @@ from options import applications
 from speech import speak_and_print
 from web import get_weather, fetch_website
 
-
-
 def handle(userinput: str):
         print(f"User: {userinput}")
         answer = prompt(userinput)

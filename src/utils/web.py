@@ -2,8 +2,6 @@
 from options import weather_key
 import requests 
 
-
-
 def fetch_website(uri: str) -> str:
     try:
         response = requests.get(uri)
