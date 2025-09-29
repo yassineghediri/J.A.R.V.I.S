@@ -3,27 +3,22 @@
 import subprocess
 import sys
 
-from utils.jarvis import prompt
+from shared.commands import Command
+from jarvis import prompt 
+
+from memory import context 
 from memory import context, save_into_memory, delete_from_memory
 from options import applications
+from utils.jarvis import prompt
 from utils.speech import speak_and_print
 from utils.web import get_weather, fetch_website
 from utils.notifications import schedule_notification, send_notification_instant
 
-from enum import Enum
-
-class Command(Enum):
-  OPEN_APP = 'OPEN'
-  WEATHER_INFO = 'WEATHER'
-  NEWS_INFO = 'NEWS'
-  SEND_NOTIFICATION = 'NOTIFY'
-  SEND_NOTIFICATION_DELAYED = 'NOTIFY_DELAY'
-  
 def command_input(answer: str, command: Command) -> bool:
     return answer.startswith(command.value)
 
-
 def response_notification_instant(answer: str):
+    
     content = answer.replace("NOTIFY", "", 1).strip()
     parts = content.split(" ", 1)
     title = parts[0]
@@ -36,6 +31,7 @@ def response_notification_instant(answer: str):
     
     
 def response_notification_delay(answer: str):
+    
     # Remove the NOTIFY_DELAY keyword
     content = answer.replace("NOTIFY_DELAY", "", 1).strip()
     parts = content.rsplit(" ", 1)
