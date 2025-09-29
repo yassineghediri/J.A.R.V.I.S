@@ -15,10 +15,11 @@ J.A.R.V.I.S (Just A Rather Very Intelligent System) is an intelligent assistant 
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/J.A.R.V.I.S.git
+git clone https://github.com/yassineghediri/J.A.R.V.I.S.git
 cd J.A.R.V.I.S
 pip install -r requirements.txt
 ```
+A venv is recommended here.
 
 ## Usage
 
