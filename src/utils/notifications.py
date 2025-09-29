@@ -30,30 +30,14 @@ def send_notification_instant(title: str, body: str) -> bool:
 
 # Delay in seconds.
 def send_notification_delay(title: str, body: str, delay: int) -> bool:
-    ACCESS_TOKEN = pushbullet_secret
-    url = "https://api.pushbullet.com/v2/pushes"
-
-    headers = {
-        "Access-Token": ACCESS_TOKEN,
-        "Content-Type": "application/json"
-    }
-
-    data = {
-        "type": "note",
-        "title": f"{title}",
-        "body": f"{body}"
-    }
-
+    print(f"[DEBUG] Delay started: {delay} seconds for '{title}'")
     sleep(delay)
-    response = requests.post(url, json=data, headers=headers)
+    print(f"[DEBUG] Delay finished. Sending notification: '{title}'")
+    return send_notification_instant(title, body)
 
-    if response.status_code == 200:
-        return True 
-    else:
-        return False
-    
-    
+
 def schedule_notification(title: str, body: str, delay: int):
-    args = (title, body, delay)
-    noti_thread = threading.Thread(target=send_notification_delay, args=args)
+    noti_thread = threading.Thread(
+        target=send_notification_delay, args=(title, body, delay), daemon=True
+    )
     noti_thread.start()
