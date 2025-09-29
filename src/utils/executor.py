@@ -18,6 +18,7 @@ def command_input(answer: str, command: Command) -> bool:
     return answer.startswith(command.value)
 
 def response_notification_instant(answer: str):
+    
     content = answer.replace("NOTIFY", "", 1).strip()
     parts = content.split(" ", 1)
     title = parts[0]
@@ -30,6 +31,7 @@ def response_notification_instant(answer: str):
     
     
 def response_notification_delay(answer: str):
+    
     # Remove the NOTIFY_DELAY keyword
     content = answer.replace("NOTIFY_DELAY", "", 1).strip()
     parts = content.rsplit(" ", 1)
