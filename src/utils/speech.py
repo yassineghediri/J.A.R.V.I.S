@@ -14,13 +14,12 @@ def listen_from_mic(phrase_limit: int | None = None) -> str:
     
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source, duration=0.2)
-        print("Listening... Speak now.")
         audio = recognizer.listen(source, phrase_time_limit=phrase_limit)
 
     try:
         return recognizer.recognize_google(audio)
     except sr.UnknownValueError:
-        print("Sorry I couldn't understand that.")
+        pass
     except sr.RequestError as e:
         print(f"Could not request results: {e}")
     return ""

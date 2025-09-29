@@ -4,7 +4,6 @@ import subprocess
 import sys
 
 from shared.commands import Command
-from jarvis import prompt 
 
 from memory import context 
 from memory import context, save_into_memory, delete_from_memory
