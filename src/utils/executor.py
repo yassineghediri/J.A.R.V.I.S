@@ -12,7 +12,7 @@ from options import applications
 from utils.jarvis import prompt
 from utils.speech import speak_and_print
 from utils.web import get_weather, fetch_website
-from utils.notifications import send_notification_delay, send_notification_instant
+from utils.notifications import schedule_notification, send_notification_instant
 
 def command_input(answer: str, command: Command) -> bool:
     return answer.startswith(command.value)
@@ -39,6 +39,7 @@ def response_notification_delay(answer: str):
     title_body = parts[0].split(" ", 1)
     title = title_body[0]
     body = title_body[1] if len(title_body) > 1 else ""
+    schedule_notification(title, body, delay)
     response = prompt(f"SYSTEM INFO: Scheduling a notification with title: {title} and body: {body} after delay: {delay} was successful. Confirm to the user, but do not repeat the title, or the body.")
     speak_and_print(response)
 
@@ -92,10 +93,11 @@ def handle(userinput: str):
             response_weather_info(answer=answer)
         elif command_input(answer, Command.NEWS_INFO):
             response_news()
-        elif command_input(answer, Command.SEND_NOTIFICATION):
-            response_notification_instant(answer=answer)
         elif command_input(answer, Command.SEND_NOTIFICATION_DELAYED):
             response_notification_delay(answer=answer)
+        elif command_input(answer, Command.SEND_NOTIFICATION):
+            response_notification_instant(answer=answer)
+
         else:
            speak_and_print(answer) 
 
