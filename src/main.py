@@ -1,5 +1,6 @@
-from utils.speech import record
+from utils.speech import record, speak_and_print
 from src.utils.executor import handle
+from utils.jarvis import initialize
 
 def main():
     global context
