@@ -36,3 +36,4 @@ def schedule_notification(title: str, body: str, delay: int):
         target=send_notification_delay, args=(title, body, delay), daemon=True
     )
     noti_thread.start()
+
