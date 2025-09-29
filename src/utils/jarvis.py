@@ -21,7 +21,6 @@ def get_context() -> str | None:
             break
     return output if output != "" else None
 
-
 def prompt(user_instruction: str) -> str:
     app_list_str = ", ".join(applications.keys())
     chat_completion = client.chat.completions.create(
