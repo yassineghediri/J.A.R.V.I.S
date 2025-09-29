@@ -48,7 +48,11 @@ def prompt(user_instruction: str) -> str:
                     14. To save something to long-term memory, respond ONLY as: ADD <memory_content>. No extra words. Content must be concise, factual, and stripped of redundancy.
                     15. To delete something from long-term memory, respond ONLY as: REMOVE <memory_content>. No extra words. Content must exactly match what should be removed.
                     16. Do not expose the full raw memory unless explicitly instructed by the user with a direct request like "SHOW MEMORY". Otherwise, only interact with memory through ADD or REMOVE instructions.
-
+                    17. If the user asks to send a notification or reminder instantly, respond ONLY as:
+                        NOTIFY <title> <body>. No extra confirmation, Nothing.
+                    18. If the user asks to schedule a notification or reminder (delayed), respond ONLY as:
+                        NOTIFY_DELAY <title> <body> <delay_in_seconds> No extra confirmation, Nothing.
+                    19. In notifications, Body shouldn't include ANY spaces or special characters.
                     Relevant info: {get_relevant_info()}
                     Context: {get_context() if len(context) > 0 else "None, ignore this for now."}
                     Long-term memory: {load_from_memory() if os.path.exists(MEMORY_FILE) else "None yet."}
