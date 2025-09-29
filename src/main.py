@@ -1,9 +1,9 @@
-from utils.speech import record
+from utils.speech import listen_from_mic
 from src.utils.executor import handle
 
 def main():
     while True:
-        prompt = record()
+        prompt = listen_from_mic()
         if len(context) > 25:
             context = []
         if "jarvis" in prompt.lower():
