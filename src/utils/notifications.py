@@ -30,9 +30,7 @@ def send_notification_instant(title: str, body: str) -> bool:
 
 # Delay in seconds.
 def send_notification_delay(title: str, body: str, delay: int) -> bool:
-    print(f"[DEBUG] Delay started: {delay} seconds for '{title}'")
     sleep(delay)
-    print(f"[DEBUG] Delay finished. Sending notification: '{title}'")
     return send_notification_instant(title, body)
 
 
