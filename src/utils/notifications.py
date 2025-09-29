@@ -6,7 +6,9 @@ from options import pushbullet_secret
 from time import sleep
 
 def send_notification_instant(title: str, body: str) -> bool:
+    
     ACCESS_TOKEN = pushbullet_secret
+
     url = "https://api.pushbullet.com/v2/pushes"
 
     headers = {
@@ -22,17 +24,12 @@ def send_notification_instant(title: str, body: str) -> bool:
 
     response = requests.post(url, json=data, headers=headers)
 
-    if response.status_code == 200:
-        return True 
-    else:
-        return False
-
+    return response.status_code == 200
 
 # Delay in seconds.
 def send_notification_delay(title: str, body: str, delay: int) -> bool:
     sleep(delay)
     return send_notification_instant(title, body)
-
 
 def schedule_notification(title: str, body: str, delay: int):
     noti_thread = threading.Thread(
