@@ -17,6 +17,9 @@ def main():
         if prompt.lower().strip() == "jarvis" or prompt.lower().strip() == "hey jarvis":
             speak_and_print("Yes, sir?")
             prompt = listen_from_mic()
+            while len(prompt) < 1:
+                prompt = listen_from_mic()
+                
             handle(prompt)
         elif "jarvis" in prompt.lower():
             handle(prompt)

@@ -42,6 +42,19 @@ def response_notification_delay(answer: str):
     response = prompt(f"SYSTEM INFO: Scheduling a notification with title: {title} and body: {body} after delay: {delay} was successful. Confirm to the user, but do not repeat the title, or the body.")
     speak_and_print(response)
 
+def response_del_mem(answer: str):
+    memory_content = answer.replace('REMOVE', '')
+    delete_from_memory(memory_content)
+    response = prompt(f"SYSTEM INFO: {memory_content} has been deleted from memory. Confirm to the user.")
+    speak_and_print(response)
+
+
+def response_add_mem(answer: str):
+    memory_content = answer.replace('ADD', '')
+    save_into_memory(memory_content)
+    response = prompt(f"SYSTEM INFO: {memory_content} has been saved into memory. Confirm to the user.")
+    speak_and_print(response)
+
 
 def response_open_application(answer: str):
     
@@ -96,6 +109,10 @@ def handle(userinput: str):
             response_notification_delay(answer=answer)
         elif command_input(answer, Command.SEND_NOTIFICATION):
             response_notification_instant(answer=answer)
+        elif command_input(answer, Command.SAVE_MEM):
+            response_add_mem(answer=answer)
+        elif command_input(answer, Command.DEL_MEM):
+            response_del_mem(answer=answer)
 
         else:
            speak_and_print(answer) 
